@@ -62,6 +62,7 @@ export type WeatherEntry = {
   dateTime?: Date;
   warning?: string;
   warningUrl?: string;
+  precip?: string;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -102,7 +103,6 @@ export function loadCurrentAndForecasts(responseJson: any) {
         let textSummary = forecastEntry.textSummary;
         if (isString(forecastEntry.temperatures.textSummary))
           textSummary = textSummary.replace(forecastEntry.temperatures.textSummary, '');
-
         entries.push({
           icon: forecastEntry.abbreviatedForecast?.iconCode?._ ?? forecastEntry.iconCode?._,
           title: forecastEntry.period.textForecastName,
@@ -111,6 +111,7 @@ export function loadCurrentAndForecasts(responseJson: any) {
           expanded: entries.length == 0,
           isNight: forecastEntry.temperatures?.temperature?.class === "low",
           dateTime: dateTime,
+          precip: forecastEntry.abbreviatedForecast?.pop?._,
         });
         dateTime = undefined;
       });
@@ -145,6 +146,7 @@ export type WeatherHourlyEntry = {
   value?: string,
   fontWeight?: string,
   key?: string,
+  precip?: string,
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -216,6 +218,7 @@ export function loadHourlyForecasts(responseJson: any) {
         isNight: currHour > sunset || currHour < sunrise,
         isOther: true,
         heading,
+        precip: entry.lop?._,
       });
     });
   }
