@@ -7,7 +7,7 @@ function separateWords(text: string) {
   return newText.charAt(0).toUpperCase() + newText.slice(1);
 }
 
-function getAsOfLabel(dateTime?: Date) {
+export function getAsOfLabel(dateTime?: Date) {
   if (!dateTime)
     return 'Now';
 
