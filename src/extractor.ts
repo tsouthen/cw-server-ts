@@ -131,7 +131,7 @@ function parseTimeStamp(timeStamp: string) {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function parseFirstTimeStamp(dateTimes: any) {
   if (dateTimes?.length)
-    return parseTimeStamp(dateTimes[1].timeStamp);
+    return parseTimeStamp(dateTimes[0].timeStamp);
 }
 
 export type WeatherHourlyEntry = {
