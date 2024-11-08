@@ -362,10 +362,13 @@ export function loadSunRiseSet(responseJson: any) {
   let heading: string | undefined = "Sun rise & set";
   const riseSet = responseJson.riseSet;
   if (riseSet && riseSet.dateTime && riseSet.dateTime.length) {
+    // only the UTC entries seem to have the correct data but we need to find the UTC offset in the non-UTC data first
+    const utcOffset = Number(riseSet.dateTime.find((entry: { zone: string, UTCOffset: string}) => entry.zone !== "UTC")?.UTCOffset) ?? 0;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     riseSet.dateTime.forEach((entry: any) => {
-      if (entry.zone !== "UTC") {
-        let hour = Number(entry.hour);
+      if (entry.zone === "UTC") {
+        let hour = Number(entry.hour) + utcOffset;
+        if (hour < 0) hour += 24;
         let suffix = "am";
         if (hour >= 12) {
           if (hour > 12)
