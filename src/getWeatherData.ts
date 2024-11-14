@@ -9,9 +9,7 @@ export async function getWeatherData(requestedId: string) {
   if (!site) {
     throw new Error("Unknown site id or name: " + requestedId);
   }
-  const url = new URL(
-    `https://dd.weather.gc.ca/citypage_weather/xml/${site.prov}/${site.site}_e.xml`
-  );
+  const url = new URL(`https://dd.weather.gc.ca/citypage_weather/xml/${site.prov}/${site.site}_e.xml`);
   const result = await fetch(url);
   if (!result.ok) {
     throw new Error("Error fetching XML data for url: " + url);

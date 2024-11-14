@@ -15,5 +15,7 @@ app.get("/weather/:id", async (req, res) => {
 });
 
 app.listen(port, () => {
-  return console.log(`Express is listening at http://localhost:${port}, try: http://localhost:${port}/weather/courtenay`);
+  return console.log(
+    `Express is listening at http://localhost:${port}, try: http://localhost:${port}/weather/courtenay`
+  );
 });
