@@ -88,7 +88,7 @@ export function loadCurrentAndForecasts(responseJson: any) {
         isNight: false,
         dateTime,
         warning: warningDesc ? upperCaseFirstLetters(warningDesc) : undefined,
-        warningUrl: warningDesc ? valueOrEmptyString(responseJson.warnings?.url) : undefined,
+        warningUrl: warningDesc ? valueOrEmptyString(responseJson.warnings?.event?.url) : undefined,
       };
 
       // console.debug(entry);
@@ -192,7 +192,7 @@ function getHourlyAndRiseSet(responseJson: any) {
 export function loadHourlyForecasts(responseJson: any) {
   const entries: WeatherHourlyEntry[] = [];
 
-  const test = getHourlyAndRiseSet(responseJson);
+  // const test = getHourlyAndRiseSet(responseJson);
 
   if (responseJson.hourlyForecastGroup?.hourlyForecast?.length > 1) {
     // let utcTimeStamp = responseJson.hourlyForecastGroup.dateTime[0].timeStamp;
