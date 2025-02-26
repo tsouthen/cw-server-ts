@@ -432,7 +432,7 @@ export function loadSunRiseSet(responseJson: any) {
     const result: WeatherHourlyEntry = {
       heading,
       title: getSunRiseSetTitle(entry.name),
-      value: `${entry.hour}:${entry.minutes} ${entry.suffix}`,
+      value: `${entry.hour}:${entry.minutes.toString().padStart(2, "0")} ${entry.suffix}`,
       isOther: true,
       isNight: false,
       icon: entry.name,
