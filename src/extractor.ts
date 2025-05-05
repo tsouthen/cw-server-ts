@@ -47,6 +47,7 @@ function valueOrEmptyString(item: any) {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function loadWeatherOffice(responseJson: any) {
   return {
+    location: responseJson.location, //TODO: extract to a better know data structure
     forecast: loadCurrentAndForecasts(responseJson),
     hourly: loadHourlyForecasts(responseJson),
     yesterday: loadYesterday(responseJson),
