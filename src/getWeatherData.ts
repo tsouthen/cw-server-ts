@@ -9,7 +9,11 @@ export async function getWeatherData(requestedId: string) {
   if (!site) {
     throw new Error("Unknown site id or name: " + requestedId);
   }
-  const url = new URL(`https://dd.weather.gc.ca/citypage_weather/xml/${site.prov}/${site.site}_e.xml`);
+
+  const url = await getWeatherUrl(site);
+  if (!url) {
+    throw new Error("No URL found for site: " + site.site);
+  }
   const result = await fetch(url);
   if (!result.ok) {
     throw new Error("Error fetching XML data for url: " + url);
@@ -22,4 +26,27 @@ export async function getWeatherData(requestedId: string) {
 
 async function xmlToJson(xml: string) {
   return parseStringPromise(xml, { explicitArray: false, mergeAttrs: true, explicitRoot: false });
+}
+
+async function getWeatherUrl(site: { site: string; prov: string }, utcHour?: number): Promise<string | undefined> {
+  const first = utcHour === undefined;
+  if (utcHour === undefined) {
+    utcHour = new Date().getUTCHours();
+  }
+  const utcHourStr = utcHour.toString().padStart(2, "0");
+  const provincePage = `https://dd.weather.gc.ca/citypage_weather/${site.prov}/${utcHourStr}/`;
+  const provincePageResult = await fetch(provincePage);
+  if (provincePageResult.ok) {
+    const href = getWeatherUrlFromHtml(site, await provincePageResult.text());
+    if (href) return `${provincePage}${href}`;
+  }
+  if (first) return await getWeatherUrl(site, (utcHour - 1 + 24) % 24);
+}
+
+function getWeatherUrlFromHtml(site: { site: string; prov: string }, htmlStr: string) {
+  const hrefMatch = htmlStr
+    .split("\n")
+    .find((line) => line.includes(`${site.site}_en.xml`))
+    ?.match(/href="([^"]+)"/);
+  if (hrefMatch && hrefMatch.length >= 2) return hrefMatch[1];
 }
