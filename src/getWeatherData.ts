@@ -10,7 +10,9 @@ export async function getWeatherData(requestedId: string) {
     throw new Error("Unknown site id or name: " + requestedId);
   }
 
-  const url = await getWeatherUrl(site);
+  const utcHour = new Date().getUTCHours();
+  let url = await getWeatherUrl(site, utcHour);
+  if (!url) url = await getWeatherUrl(site, (utcHour - 1 + 24) % 24);
   if (!url) {
     throw new Error("No URL found for site: " + site.site);
   }
@@ -28,25 +30,14 @@ async function xmlToJson(xml: string) {
   return parseStringPromise(xml, { explicitArray: false, mergeAttrs: true, explicitRoot: false });
 }
 
-async function getWeatherUrl(site: { site: string; prov: string }, utcHour?: number): Promise<string | undefined> {
-  const first = utcHour === undefined;
-  if (utcHour === undefined) {
-    utcHour = new Date().getUTCHours();
+async function getWeatherUrl(site: { site: string; prov: string }, utcHour: number): Promise<string | undefined> {
+  const provincePage = `https://dd.weather.gc.ca/citypage_weather/${site.prov}/${utcHour.toString().padStart(2, "0")}/`;
+  const result = await fetch(provincePage);
+  if (result.ok) {
+    const hrefMatch = (await result.text())
+      .split("\n")
+      .find((line) => line.includes(`${site.site}_en.xml`))
+      ?.match(/href="([^"]+)"/);
+    if (hrefMatch && hrefMatch.length >= 2) return `${provincePage}${hrefMatch[1]}`;
   }
-  const utcHourStr = utcHour.toString().padStart(2, "0");
-  const provincePage = `https://dd.weather.gc.ca/citypage_weather/${site.prov}/${utcHourStr}/`;
-  const provincePageResult = await fetch(provincePage);
-  if (provincePageResult.ok) {
-    const href = getWeatherUrlFromHtml(site, await provincePageResult.text());
-    if (href) return `${provincePage}${href}`;
-  }
-  if (first) return await getWeatherUrl(site, (utcHour - 1 + 24) % 24);
-}
-
-function getWeatherUrlFromHtml(site: { site: string; prov: string }, htmlStr: string) {
-  const hrefMatch = htmlStr
-    .split("\n")
-    .find((line) => line.includes(`${site.site}_en.xml`))
-    ?.match(/href="([^"]+)"/);
-  if (hrefMatch && hrefMatch.length >= 2) return hrefMatch[1];
 }
